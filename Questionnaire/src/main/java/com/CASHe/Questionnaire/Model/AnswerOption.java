@@ -1,7 +1,6 @@
 package com.CASHe.Questionnaire.Model;
 
 import java.sql.Date;
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -10,7 +9,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -20,23 +20,20 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity	
-@Table(name = "questionnaire")
+@Table(name = "answer_option")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Questionnaire {
-	
+public class AnswerOption {
+
 	@Id
-	@SequenceGenerator(name = "questionnaire_sequence", sequenceName = "questionnaire_sequence", allocationSize = 1)
-	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "questionnaire_sequence")
-	private Short questionnaireId;
+	@SequenceGenerator(name = "option_sequence", sequenceName = "option_sequence", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "option_sequence")
+	private Short optionId;
 	
-	@Column(length = 50)
-	private String questionnaireTopic;
-	
-	@Column(length = 1000)
-	private String description;
+	@Column(length = 500)
+	private String optionContent;
 	
 	private boolean isActive;
 	
@@ -45,10 +42,13 @@ public class Questionnaire {
 	@Column(length = 50)
 	private String createdBy;
 	
-	@OneToMany(
-			fetch = FetchType.LAZY,
+	@ManyToOne( 
 			cascade = CascadeType.PERSIST,
-			mappedBy = "questionnaireId"
+			fetch = FetchType.LAZY
 	)
-	private List<Question> questions;
+	@JoinColumn( 
+			name = "answer_id",
+			referencedColumnName = "answerId"
+	)
+	private Answer answerId;
 }
