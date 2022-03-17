@@ -36,6 +36,9 @@ public class Question {
 	@Column(length = 1000)
 	private String questionContent;
 	
+	@Column(length = 1000)
+	private String description;
+	
 	@Column(length = 50)
 	private String questionType;
 	

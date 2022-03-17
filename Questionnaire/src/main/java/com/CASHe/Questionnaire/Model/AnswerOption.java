@@ -35,6 +35,9 @@ public class AnswerOption {
 	@Column(length = 500)
 	private String optionContent;
 	
+	@Column(length = 1000)
+	private String description;
+	
 	private boolean isActive;
 	
 	private Date createdDate;

@@ -36,6 +36,9 @@ public class Answer {
 	
 	private boolean isActive;
 	
+	@Column(length = 1000)
+	private String description;
+	
 	private Date createdDate;
 	
 	@Column(length = 50)
