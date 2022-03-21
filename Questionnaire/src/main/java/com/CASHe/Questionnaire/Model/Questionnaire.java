@@ -14,6 +14,8 @@ import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -50,5 +52,6 @@ public class Questionnaire {
 			cascade = CascadeType.PERSIST,
 			mappedBy = "questionnaireId"
 	)
+	@JsonIgnoreProperties({"questionnaireId", "hibernateLazyInitializer"})
 	private List<Question> questions;
 }

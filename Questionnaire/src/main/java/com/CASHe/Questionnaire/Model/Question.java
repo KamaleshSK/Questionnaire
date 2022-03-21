@@ -15,6 +15,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -64,6 +66,7 @@ public class Question {
 			fetch = FetchType.LAZY,
 			mappedBy = "questionId"
 	)
+	@JsonIgnoreProperties({"questionId", "hibernateLazyInitializer"})
 	private Answer answer;
 	
 }

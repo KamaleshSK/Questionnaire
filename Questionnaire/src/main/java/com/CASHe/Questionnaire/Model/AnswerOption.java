@@ -14,6 +14,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -53,5 +55,6 @@ public class AnswerOption {
 			name = "answer_id",
 			referencedColumnName = "answerId"
 	)
+	@JsonIgnoreProperties({"correctOption", "hibernateLazyInitializer"})
 	private Answer answerId;
 }

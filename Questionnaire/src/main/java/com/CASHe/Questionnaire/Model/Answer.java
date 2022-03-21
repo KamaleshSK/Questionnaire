@@ -16,6 +16,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -65,6 +67,7 @@ public class Answer {
 			name = "correct_option",
 			referencedColumnName = "optionId"
 	)
+	@JsonIgnoreProperties({"answerId", "hibernateLazyInitializer"})
 	private AnswerOption correctOption;
 	
 	@OneToMany(
@@ -72,6 +75,7 @@ public class Answer {
 			fetch = FetchType.LAZY,
 			mappedBy = "answerId"
 	)
+	@JsonIgnoreProperties({"answerId", "hibernateLazyInitializer"})
 	private List<AnswerOption> answerOptions;
 	
 }
