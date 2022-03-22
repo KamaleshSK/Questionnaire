@@ -39,4 +39,9 @@ public interface AnswerOptionRepository extends JpaRepository<AnswerOption, Shor
 			nativeQuery = true
 	)
 	List<AnswerOption> findAllByAnswerIdAndIsActive(@Param("answerId") Short answerId, @Param("isActive") boolean isActive);
+	
+	/*
+	 * Fetches all active answer options belonging to a particular answer_id
+	 */
+	List<AnswerOption> findAllByAnswerIdAndIsActiveTrue(Short answerId);
 }

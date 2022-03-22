@@ -21,6 +21,6 @@ public interface QuestionnaireRepository extends JpaRepository<Questionnaire, Sh
 	
 	Optional<Questionnaire> findById(Short id);
 	
-	Questionnaire findByQuestionnaireTopic(String questionnaireTopic);
+	List<Questionnaire> findAllByQuestionnaireTopicAndIsActiveTrue(String questionnaireTopic);
 	
 }

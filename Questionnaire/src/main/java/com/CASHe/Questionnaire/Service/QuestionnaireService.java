@@ -17,6 +17,8 @@ import com.CASHe.Questionnaire.DTO.QuestionResponseDTO;
 import com.CASHe.Questionnaire.DTO.QuestionnaireDTO;
 import com.CASHe.Questionnaire.DTO.QuestionnaireListUploadDTO;
 import com.CASHe.Questionnaire.DTO.QuestionnaireResponseDTO;
+import com.CASHe.Questionnaire.DTO.TopicAndTypeDTO;
+import com.CASHe.Questionnaire.DTO.TopicDTO;
 import com.CASHe.Questionnaire.Model.Answer;
 import com.CASHe.Questionnaire.Model.AnswerOption;
 import com.CASHe.Questionnaire.Model.Question;
@@ -214,7 +216,7 @@ public class QuestionnaireService {
 		return questionnaireResponseList;
 	}
 	
-	/*
+	/*	
 	 * Fetch all Questionnaire that are active lazy
 	 */
 	public List<QuestionnaireResponseDTO> findAllActiveQuestionnairesLazy() {
@@ -248,15 +250,37 @@ public class QuestionnaireService {
 	}
 	
 	/*
-	 * Fetch active questionnaire by topic
+	 * Fetch active questionnaires by topic
 	 */
-	
+	public List<QuestionnaireResponseDTO> findQuestionnaireEagerByTopic(String jsonObject) {
+		
+		if (jsonObject == null) return null;
+		
+		String topic = TopicDTO.newInstance(jsonObject).getTopic();
+		List<Questionnaire> activeQuestionnaireList = questionnaireRepository.findAllByQuestionnaireTopicAndIsActiveTrue(topic);
+		List<QuestionnaireResponseDTO> questionnaireResponseList = constructQuestionnaireResponseList(activeQuestionnaireList, true /* isEager */);
+		return questionnaireResponseList;
+	}
 	
 	/*
-	 * Fetch active questionnaire by type
+	 *  Fetch active questions (inside questionnaire) by topic and question_type
 	 */
-	
-	/*
-	 * Fetch active questionnaire by topic and type
-	 */
+	public List<QuestionnaireResponseDTO> findQuestionsByTopicAndType(String jsonObject) {
+		
+		if (jsonObject == null) return null;
+		
+		TopicAndTypeDTO topicAndType = TopicAndTypeDTO.newInstance(jsonObject);
+		List<Questionnaire> questionnaireList = questionnaireRepository.findAllByQuestionnaireTopicAndIsActiveTrue(topicAndType.getTopic());
+		List<QuestionnaireResponseDTO> questionnaireResponseList = new ArrayList<>();
+		for (Questionnaire questionnaire : questionnaireList) {
+			
+			List<Question> questionList = questionRepository.findAllByQuestionnaireIdAndQuestionTypeAndIsActiveTrue(questionnaire.getQuestionnaireId(), topicAndType.getType());
+			List<QuestionResponseDTO> questionResponseList = constructQuestionResponseList(questionList, true /* isEager */);
+			
+			QuestionnaireResponseDTO questionnaireResponse = constructQuestionnaireResponse(questionnaire, questionResponseList);	
+			questionnaireResponseList.add(questionnaireResponse);
+		}
+		
+		return questionnaireResponseList;
+	}
 } 

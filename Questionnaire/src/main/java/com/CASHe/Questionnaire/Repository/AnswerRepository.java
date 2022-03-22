@@ -32,4 +32,9 @@ public interface AnswerRepository extends JpaRepository<Answer, Short> {
 			nativeQuery = true
 	)
 	Answer findAnswerByQuestionId(@Param("questionId") Short questionId);
+	
+	/*
+	 * Fetches answer by question_id and is_active
+	 */
+	List<Answer> findAllByQuestionIdAndIsActiveTrue(Short questionId);
 }

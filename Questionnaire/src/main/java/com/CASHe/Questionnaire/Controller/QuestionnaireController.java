@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.CASHe.Questionnaire.DTO.QuestionnaireResponseDTO;
@@ -20,24 +21,34 @@ public class QuestionnaireController {
 	@Autowired
 	private QuestionnaireService questionnaireService;
 	
-	@GetMapping("/get-all-questionnaires-lazy")
+	@GetMapping("/all-questionnaires/lazy")
 	public List<QuestionnaireResponseDTO> getAllQuestionnairesLazy() {
 		return questionnaireService.findAllQuestionnairesLazy();
 	}
 	
-	@GetMapping("/get-all-active-questionnaires-lazy")
+	@GetMapping("/all-active-questionnaires/lazy")
 	public List<QuestionnaireResponseDTO> getAllActiveQuestionnairesLazy() {
 		return questionnaireService.findAllActiveQuestionnairesLazy();
 	}
 	
-	@GetMapping("/get-all-questionnaires-eager")
+	@GetMapping("/all-questionnaires/eager")
 	public List<QuestionnaireResponseDTO> getAllQuestionnairesEager() {
 		return questionnaireService.findAllQuestionnairesEager();
 	}
 	
-	@GetMapping("/get-all-active-questionnaires-eager")
+	@GetMapping("/all-active-questionnaires/eager")
 	public List<QuestionnaireResponseDTO> getAllActiveQuestionnairesEager() {
 		return questionnaireService.findAllActiveQuestionnairesEager();
+	}
+	
+	@GetMapping("/all-active-questionnaire/topic/eager")
+	public List<QuestionnaireResponseDTO> getAllActiveQuestionnairesEagerByTopic(@RequestBody String jsonObject) {
+		return questionnaireService.findQuestionnaireEagerByTopic(jsonObject);
+	}
+	
+	@GetMapping("/all-active-questionnaire/topic/type/eager")
+	public List<QuestionnaireResponseDTO> getAllActvQuestnnrsEagerByTopicByType(@RequestBody String jsonObject) {
+		return questionnaireService.findQuestionsByTopicAndType(jsonObject);
 	}
 	
 	@PostMapping("/upload-questionnaire-list")
