@@ -10,9 +10,13 @@ import org.springframework.stereotype.Service;
 
 import com.CASHe.Questionnaire.DTO.AnswerDTO;
 import com.CASHe.Questionnaire.DTO.AnswerOptionDTO;
+import com.CASHe.Questionnaire.DTO.AnswerOptionResponseDTO;
+import com.CASHe.Questionnaire.DTO.AnswerResponseDTO;
 import com.CASHe.Questionnaire.DTO.QuestionDTO;
+import com.CASHe.Questionnaire.DTO.QuestionResponseDTO;
 import com.CASHe.Questionnaire.DTO.QuestionnaireDTO;
 import com.CASHe.Questionnaire.DTO.QuestionnaireListUploadDTO;
+import com.CASHe.Questionnaire.DTO.QuestionnaireResponseDTO;
 import com.CASHe.Questionnaire.Model.Answer;
 import com.CASHe.Questionnaire.Model.AnswerOption;
 import com.CASHe.Questionnaire.Model.Question;
@@ -41,6 +45,7 @@ public class QuestionnaireService {
 	 * Save questionnaires to db
 	 */
 	public void saveQuestionnaireList(String jsonObject) {
+		
 		List<QuestionnaireDTO> questionnaireList = QuestionnaireListUploadDTO.newInstance(jsonObject).getQuestionnaireList();
 		
 		for (QuestionnaireDTO questionnaire : questionnaireList) {
@@ -95,76 +100,163 @@ public class QuestionnaireService {
 		}
 	}
 	
-	/*
-	 * Fetch all Questionnaires (without children)
-	 */
-	public List<Questionnaire> findAllQuestionnairesLazy() {
-		return questionnaireRepository.findAll();
+	private AnswerOptionResponseDTO constructAnswerOptionResponse(AnswerOption option) {
+		
+		AnswerOptionResponseDTO optionResponse = AnswerOptionResponseDTO.builder()
+				.optionId(option.getOptionId())
+				.optionContent(option.getOptionContent())
+				.description(option.getDescription())
+				.build();
+		return optionResponse;
+	}
+	
+	private AnswerResponseDTO constructAnswerResponse(Answer answer, List<AnswerOptionResponseDTO> answerOptionResponseList) {
+		// index 0 -> option 1
+		// index 1 -> option 2 and so on....
+		Short correctOption = Short.valueOf((short) (answer.getAnswerOptions().indexOf(answer.getCorrectOption())+1));
+		
+		AnswerResponseDTO answerResponse = AnswerResponseDTO.builder()
+				.answerId(answer.getAnswerId())
+				.answerType(answer.getAnswerType())
+				.description(answer.getDescription())
+				.correctOption(correctOption)
+				.options(answerOptionResponseList)
+				.build();
+		return answerResponse;
+	}
+	
+	private QuestionResponseDTO constructQuestionResponse(Question question, AnswerResponseDTO answerResponse) {
+		
+		QuestionResponseDTO questionResponse = QuestionResponseDTO.builder()
+				.questionId(question.getQuestionId())
+				.questionContent(question.getQuestionContent())
+				.questionType(question.getQuestionType())
+				.description(question.getDescription())
+				.answer(answerResponse)
+				.build();
+		return questionResponse;
+	}
+	
+	private QuestionnaireResponseDTO constructQuestionnaireResponse(Questionnaire questionnaire, List<QuestionResponseDTO> questionResponseList) {
+		
+		QuestionnaireResponseDTO questionnaireResponse = QuestionnaireResponseDTO.builder()
+				.questionnaireId(questionnaire.getQuestionnaireId())
+				.description(questionnaire.getDescription())
+				.questionnaireTopic(questionnaire.getQuestionnaireTopic())
+				.questions(questionResponseList)
+				.build();
+		return questionnaireResponse;
+	}
+	
+	private List<AnswerOptionResponseDTO> constructAnswerOptionReponseList(List<AnswerOption> answerOptions) {
+
+		if (answerOptions == null) return null;
+		
+		List<AnswerOptionResponseDTO> optionResponseList = new ArrayList<>();
+		for (AnswerOption option : answerOptions) {
+			
+			AnswerOptionResponseDTO optionResponse = constructAnswerOptionResponse(option);
+			optionResponseList.add(optionResponse);
+		}
+		return optionResponseList;
+	}
+	
+	private List<QuestionResponseDTO> constructQuestionResponseList(List<Question> questionList, boolean isEager) {
+		
+		if (questionList == null) return null;
+		
+		List<QuestionResponseDTO> questionResponseList = new ArrayList<>();
+		for (Question question : questionList) {
+			
+			Answer answer = question.getAnswer();
+			List<AnswerOption> options = null;
+			if (isEager) {
+				options = answer.getAnswerOptions();
+			}
+			
+			List<AnswerOptionResponseDTO> optionResponseList = constructAnswerOptionReponseList(options);
+			
+			AnswerResponseDTO answerResponse = constructAnswerResponse(answer, optionResponseList);
+			QuestionResponseDTO questionResponse = constructQuestionResponse(question, answerResponse);
+			questionResponseList.add(questionResponse);
+		}
+		return questionResponseList;
+	}
+	
+	private List<QuestionnaireResponseDTO> constructQuestionnaireResponseList(List<Questionnaire> questionnaireList, boolean isEager) {
+		
+		if (questionnaireList == null) return null;
+		
+		List<QuestionnaireResponseDTO> questionnaireResponseList = new ArrayList<>();
+		for (Questionnaire questionnaire : questionnaireList) {
+			
+			List<Question> questionList = null;
+			if (isEager) { 
+				questionList = questionnaire.getQuestions();
+			}
+			
+			List<QuestionResponseDTO> questionResponseList = constructQuestionResponseList(questionList, isEager);
+			
+			QuestionnaireResponseDTO questionnaireResponse = constructQuestionnaireResponse(questionnaire, questionResponseList);	
+			questionnaireResponseList.add(questionnaireResponse);
+		}
+		return questionnaireResponseList;
 	}
 	
 	/*
-	 * Fetch all Questionnaire that are active (without children)
+	 * Fetch all Questionnaires lazy
 	 */
-	public List<Questionnaire> findAllActiveQuestionnairesLazy() {
-		return questionnaireRepository.findAllByIsActive(true);
-	}
-	
-	/*
-	 * Fetch all Questionnaires (with children)
-	 */
-	public List<Questionnaire> findAllQuestionnairesEager() {
+	public List<QuestionnaireResponseDTO> findAllQuestionnairesLazy() {
 		
 		List<Questionnaire> questionnaireList = questionnaireRepository.findAll();
+		List<QuestionnaireResponseDTO> questionnaireResponseList = constructQuestionnaireResponseList(questionnaireList, false /* isEager */);
 		
-		for (Questionnaire questionnaire : questionnaireList) {
-			List<Question> questionsList = questionnaire.getQuestions();
-
-			for (Question question : questionsList) {
-				Answer answer = question.getAnswer();
-				
-				answer.setAnswerOptions(answer.getAnswerOptions());
-				question.setAnswer(answer);
-			}
-			
-			questionnaire.setQuestions(questionsList);
-		}
-		
-		return questionnaireList;
+		return questionnaireResponseList;
 	}
 	
 	/*
-	 *  Fetch all Active Questionnaires (with children) 
+	 * Fetch all Questionnaire that are active lazy
 	 */
-	public List<Questionnaire> findAllActiveQuestionnairesEager() {
+	public List<QuestionnaireResponseDTO> findAllActiveQuestionnairesLazy() {
 		
-		List<Questionnaire> questionnaireList = questionnaireRepository.findAllByIsActive(true);
+		List<Questionnaire> activeQuestionnaireList = questionnaireRepository.findAllByIsActive(true);
+		List<QuestionnaireResponseDTO> activeQuestionnaireResponseList = constructQuestionnaireResponseList(activeQuestionnaireList, false /* isEager */);
 		
-		for (Questionnaire questionnaire : questionnaireList) {
-			Short questionnaireId = questionnaire.getQuestionnaireId();
-			List<Question> questionsList = questionRepository.findAllByQuestionnaireIdAndIsActive(questionnaireId, true);
-			
-			for (Question question : questionsList) {
-				Answer answer = question.getAnswer();
-				Short answerId = answer.getAnswerId();
-				
-				answer.setAnswerOptions(answerOptionRepository.findAllByAnswerIdAndIsActive(answerId, true));
-			}
-			
-			questionnaire.setQuestions(questionsList);
-		}
-		
-		return questionnaireList;
+		return activeQuestionnaireResponseList;
 	}
 	
 	/*
-	 * by topic
+	 * Fetch all Questionnaires eager
+	 */
+	public List<QuestionnaireResponseDTO> findAllQuestionnairesEager() {
+		
+		List<Questionnaire> questionnaireList = questionnaireRepository.findAll();
+		List<QuestionnaireResponseDTO> questionnaireResponseList = constructQuestionnaireResponseList(questionnaireList, true /* isEager */);
+		
+		return questionnaireResponseList;
+	}
+	
+	/*
+	 *  Fetch all Active Questionnaires eager
+	 */
+	public List<QuestionnaireResponseDTO> findAllActiveQuestionnairesEager() {
+		
+		List<Questionnaire> activeQuestionnaireList = questionnaireRepository.findAllByIsActive(true);
+		List<QuestionnaireResponseDTO> activeQuestionnaireResponseList = constructQuestionnaireResponseList(activeQuestionnaireList, true /* isEager */);
+		
+		return activeQuestionnaireResponseList;
+	}
+	
+	/*
+	 * Fetch active questionnaire by topic
+	 */
+	
+	
+	/*
+	 * Fetch active questionnaire by type
 	 */
 	
 	/*
-	 * by type
-	 */
-	
-	/*
-	 * by topic and type
+	 * Fetch active questionnaire by topic and type
 	 */
 } 

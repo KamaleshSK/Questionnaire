@@ -21,11 +21,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity	
 @Table(name = "answer")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -77,5 +80,77 @@ public class Answer {
 	)
 	@JsonIgnoreProperties({"answerId", "hibernateLazyInitializer"})
 	private List<AnswerOption> answerOptions;
+
+	public Short getAnswerId() {
+		return answerId;
+	}
+
+	public void setAnswerId(Short answerId) {
+		this.answerId = answerId;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public String getAnswerType() {
+		return answerType;
+	}
+
+	public void setAnswerType(String answerType) {
+		this.answerType = answerType;
+	}
+
+	public Question getQuestionId() {
+		return questionId;
+	}
+
+	public void setQuestionId(Question questionId) {
+		this.questionId = questionId;
+	}
+
+	public AnswerOption getCorrectOption() {
+		return correctOption;
+	}
+
+	public void setCorrectOption(AnswerOption correctOption) {
+		this.correctOption = correctOption;
+	}
+
+	public List<AnswerOption> getAnswerOptions() {
+		return answerOptions;
+	}
+
+	public void setAnswerOptions(List<AnswerOption> answerOptions) {
+		this.answerOptions = answerOptions;
+	}
 	
 }

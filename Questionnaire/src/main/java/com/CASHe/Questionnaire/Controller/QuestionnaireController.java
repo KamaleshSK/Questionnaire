@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.CASHe.Questionnaire.DTO.QuestionnaireResponseDTO;
 import com.CASHe.Questionnaire.Model.Questionnaire;
 import com.CASHe.Questionnaire.Service.QuestionnaireService;
 
@@ -20,22 +21,22 @@ public class QuestionnaireController {
 	private QuestionnaireService questionnaireService;
 	
 	@GetMapping("/get-all-questionnaires-lazy")
-	public List<Questionnaire> getAllQuestionnairesLazy() {
+	public List<QuestionnaireResponseDTO> getAllQuestionnairesLazy() {
 		return questionnaireService.findAllQuestionnairesLazy();
 	}
 	
 	@GetMapping("/get-all-active-questionnaires-lazy")
-	public List<Questionnaire> getAllActiveQuestionnairesLazy() {
+	public List<QuestionnaireResponseDTO> getAllActiveQuestionnairesLazy() {
 		return questionnaireService.findAllActiveQuestionnairesLazy();
 	}
 	
 	@GetMapping("/get-all-questionnaires-eager")
-	public List<Questionnaire> getAllQuestionnairesEager() {
+	public List<QuestionnaireResponseDTO> getAllQuestionnairesEager() {
 		return questionnaireService.findAllQuestionnairesEager();
 	}
 	
 	@GetMapping("/get-all-active-questionnaires-eager")
-	public List<Questionnaire> getAllActiveQuestionnairesEager() {
+	public List<QuestionnaireResponseDTO> getAllActiveQuestionnairesEager() {
 		return questionnaireService.findAllActiveQuestionnairesEager();
 	}
 	

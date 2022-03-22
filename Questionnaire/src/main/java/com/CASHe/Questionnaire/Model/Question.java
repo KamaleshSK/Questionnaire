@@ -20,11 +20,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity	
 @Table(name = "question")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -68,5 +71,77 @@ public class Question {
 	)
 	@JsonIgnoreProperties({"questionId", "hibernateLazyInitializer"})
 	private Answer answer;
+
+	public Short getQuestionId() {
+		return questionId;
+	}
+
+	public void setQuestionId(Short questionId) {
+		this.questionId = questionId;
+	}
+
+	public String getQuestionContent() {
+		return questionContent;
+	}
+
+	public void setQuestionContent(String questionContent) {
+		this.questionContent = questionContent;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public String getQuestionType() {
+		return questionType;
+	}
+
+	public void setQuestionType(String questionType) {
+		this.questionType = questionType;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public Questionnaire getQuestionnaireId() {
+		return questionnaireId;
+	}
+
+	public void setQuestionnaireId(Questionnaire questionnaireId) {
+		this.questionnaireId = questionnaireId;
+	}
+
+	public Answer getAnswer() {
+		return answer;
+	}
+
+	public void setAnswer(Answer answer) {
+		this.answer = answer;
+	}
 	
 }

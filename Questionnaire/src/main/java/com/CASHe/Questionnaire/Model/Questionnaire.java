@@ -19,11 +19,14 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity	
 @Table(name = "questionnaire")
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -54,4 +57,60 @@ public class Questionnaire {
 	)
 	@JsonIgnoreProperties({"questionnaireId", "hibernateLazyInitializer"})
 	private List<Question> questions;
+
+	public Short getQuestionnaireId() {
+		return questionnaireId;
+	}
+
+	public void setQuestionnaireId(Short questionnaireId) {
+		this.questionnaireId = questionnaireId;
+	}
+
+	public String getQuestionnaireTopic() {
+		return questionnaireTopic;
+	}
+
+	public void setQuestionnaireTopic(String questionnaireTopic) {
+		this.questionnaireTopic = questionnaireTopic;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public boolean isActive() {
+		return isActive;
+	}
+
+	public void setActive(boolean isActive) {
+		this.isActive = isActive;
+	}
+
+	public Date getCreatedDate() {
+		return createdDate;
+	}
+
+	public void setCreatedDate(Date createdDate) {
+		this.createdDate = createdDate;
+	}
+
+	public String getCreatedBy() {
+		return createdBy;
+	}
+
+	public void setCreatedBy(String createdBy) {
+		this.createdBy = createdBy;
+	}
+
+	public List<Question> getQuestions() {
+		return questions;
+	}
+
+	public void setQuestions(List<Question> questions) {
+		this.questions = questions;
+	}
 }
