@@ -1,5 +1,6 @@
 package com.CASHe.Questionnaire.Controller;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.CASHe.Questionnaire.DTO.QuestionnaireResponseDTO;
 import com.CASHe.Questionnaire.Model.Questionnaire;
@@ -54,5 +56,12 @@ public class QuestionnaireController {
 	@PostMapping("/upload-questionnaire-list")
 	public void uploadQuestionnaireList(@RequestBody String jsonObject) {
 		questionnaireService.saveQuestionnaireList(jsonObject);
+	}
+	
+	@PostMapping("/upload-questionnaire-list/psv-file")
+	public void uploadQuestionnaireListViaPsvFile(@RequestParam("file") MultipartFile file) throws IOException {
+		// Ideally this parsing task is delegated to an asynchronouse task queue
+		// For now parsing is done in the life cycle of the request itself
+		questionnaireService.saveQuestionnaireListFromPSVFile(file);
 	}
 }

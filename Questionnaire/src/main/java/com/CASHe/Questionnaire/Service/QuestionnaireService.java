@@ -1,12 +1,18 @@
 package com.CASHe.Questionnaire.Service;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.CASHe.Questionnaire.DTO.AnswerDTO;
 import com.CASHe.Questionnaire.DTO.AnswerOptionDTO;
@@ -44,6 +50,126 @@ public class QuestionnaireService {
 	private AnswerOptionRepository answerOptionRepository;
 	
 	/*
+	 * fetches Questionnaire by topic if already present
+	 * else builds new Questionnaire using information from the csvColumnFields
+	 */
+	private Questionnaire fetchQuestionnaireIfPresentElseBuildNew(String questionnaireTopic, List<String> psvColumnFields) {
+		
+		Questionnaire questionnaire = questionnaireRepository.findByQuestionnaireTopicAndIsActiveTrue(questionnaireTopic);
+		if (questionnaire != null) {
+			return questionnaire;
+		}
+		
+		questionnaire = Questionnaire.builder()
+				.questionnaireTopic(psvColumnFields.get(5))
+				.description(psvColumnFields.get(7))
+				.createdBy(psvColumnFields.get(6))
+				.createdDate(new Date(System.currentTimeMillis()))
+				.isActive(true)
+				.build();
+		return questionnaire;
+	}
+	
+	/*
+	 * Save questionnaires to db after parsing csv file
+	 */
+	public void saveQuestionnaireListFromPSVFile(MultipartFile file) throws IOException {
+		
+		BufferedReader csvReader = null;
+		csvReader = new BufferedReader(new InputStreamReader(file.getInputStream()));
+		
+		String csvRow;
+		String prevQuestionnaireTopic = null;
+		Questionnaire questionnaireSave = null;
+		while ((csvRow = csvReader.readLine()) != null) {
+			/*
+			 * PSV columns in the order:
+			 * 
+			 * question_content (0) | option_1 (1) | option_2 (2) | correct_option (3) | question_type (4) |
+			 * questionnaire_topic (5) | created_by (6) | questionnaire_description (7)
+			 */
+			List<String> columnFields = Arrays.asList(csvRow.split("\\|"));
+			
+			/*
+			 * Checking if questionnaireTopic already exists in the db
+			 * if YES: fetch the questionnaire and add questions to it
+			 * if NO: create new questionnaire and add questions to it
+			 */
+			String questionnaireTopic = columnFields.get(5);
+			if (prevQuestionnaireTopic == null || !prevQuestionnaireTopic.equalsIgnoreCase(questionnaireTopic)) {
+				prevQuestionnaireTopic = new String(questionnaireTopic);
+				// if there is a change in the questionnaire topic or starting 
+				// check and fetch Questionnaire if already present
+				questionnaireSave = fetchQuestionnaireIfPresentElseBuildNew(questionnaireTopic, columnFields);
+			}
+			
+			Question questionSave = Question.builder()
+					.isActive(true)
+					.questionnaireId(questionnaireSave)
+					.questionContent(columnFields.get(0))
+					.questionType(columnFields.get(4))
+					.createdBy(columnFields.get(6))
+					.createdDate(new Date(System.currentTimeMillis()))
+					.build();
+			
+			Answer answerSave = Answer.builder()
+					.answerType(columnFields.get(4))
+					.questionId(questionSave)
+					.createdBy(columnFields.get(6))
+					.createdDate(new Date(System.currentTimeMillis()))
+					.isActive(true)
+					.build();
+			
+			AnswerOption option1Save = AnswerOption.builder()
+					.answerId(answerSave)
+					.optionContent(columnFields.get(1))
+					.createdBy(columnFields.get(6))
+					.createdDate(new Date(System.currentTimeMillis()))
+					.isActive(true)
+					.build();
+			
+			AnswerOption option2Save = AnswerOption.builder()
+					.answerId(answerSave)
+					.optionContent(columnFields.get(2))
+					.createdBy(columnFields.get(6))
+					.createdDate(new Date(System.currentTimeMillis()))
+					.isActive(true)
+					.build();
+			
+			if (columnFields.get(3) == "1") {
+				answerSave.setCorrectOption(option1Save);
+			} else {
+				answerSave.setCorrectOption(option2Save);
+			}
+			
+			answerOptionRepository.save(option1Save);
+			answerOptionRepository.save(option2Save);
+		}
+	}
+	
+	/*
+	 * fetches Questionnaire by topic if already present
+	 * else builds new Questionnaire using information from jsonBody
+	 */
+	private Questionnaire fetchQuestionnaireIfPresentElseBuildNew(String questionnaireTopic, QuestionnaireDTO questionnaireDTO) {
+		
+		Questionnaire questionnaireSave;
+		questionnaireSave = questionnaireRepository.findByQuestionnaireTopicAndIsActiveTrue(questionnaireTopic);
+		if (questionnaireSave != null) {
+			return questionnaireSave;
+		}
+		
+		questionnaireSave = Questionnaire.builder()
+				.questionnaireTopic(questionnaireDTO.getQuestionnaireTopic())
+				.description(questionnaireDTO.getDescription())
+				.createdBy(questionnaireDTO.getCreatedBy())
+				.createdDate(new Date(System.currentTimeMillis()))
+				.isActive(true)
+				.build();
+		return questionnaireSave;
+	}
+	
+	/*
 	 * Save questionnaires to db
 	 */
 	public void saveQuestionnaireList(String jsonObject) {
@@ -52,13 +178,8 @@ public class QuestionnaireService {
 		
 		for (QuestionnaireDTO questionnaire : questionnaireList) {
 			
-			Questionnaire questionnaireSave = Questionnaire.builder()
-					.questionnaireTopic(questionnaire.getQuestionnaireTopic())
-					.description(questionnaire.getDescription())
-					.createdBy(questionnaire.getCreatedBy())
-					.createdDate(new Date(System.currentTimeMillis()))
-					.isActive(true)
-					.build();
+			String questionnaireTopic = questionnaire.getQuestionnaireTopic();
+			Questionnaire questionnaireSave = fetchQuestionnaireIfPresentElseBuildNew(questionnaireTopic, questionnaire);
 			
 			List<QuestionDTO> questionList = questionnaire.getQuestionList();
 			for (QuestionDTO question : questionList) {
