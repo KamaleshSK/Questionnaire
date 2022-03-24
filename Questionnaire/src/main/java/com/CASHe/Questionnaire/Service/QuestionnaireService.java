@@ -33,6 +33,7 @@ import com.CASHe.Questionnaire.Repository.AnswerOptionRepository;
 import com.CASHe.Questionnaire.Repository.AnswerRepository;
 import com.CASHe.Questionnaire.Repository.QuestionRepository;
 import com.CASHe.Questionnaire.Repository.QuestionnaireRepository;
+import com.CASHe.Questionnaire.Utils.CSVParser;
 
 @Service
 public class QuestionnaireService {
@@ -53,7 +54,7 @@ public class QuestionnaireService {
 	 * fetches Questionnaire by topic if already present
 	 * else builds new Questionnaire using information from the csvColumnFields
 	 */
-	private Questionnaire fetchQuestionnaireIfPresentElseBuildNew(String questionnaireTopic, List<String> psvColumnFields) {
+	private Questionnaire fetchQuestionnaireIfPresentElseBuildNew(String questionnaireTopic, List<String> csvColumnFields) {
 		
 		Questionnaire questionnaire = questionnaireRepository.findByQuestionnaireTopicAndIsActiveTrue(questionnaireTopic);
 		if (questionnaire != null) {
@@ -61,19 +62,20 @@ public class QuestionnaireService {
 		}
 		
 		questionnaire = Questionnaire.builder()
-				.questionnaireTopic(psvColumnFields.get(5))
-				.description(psvColumnFields.get(7))
-				.createdBy(psvColumnFields.get(6))
+				.questionnaireTopic(csvColumnFields.get(5))
+				.description(csvColumnFields.get(7))
+				.createdBy(csvColumnFields.get(6))
 				.createdDate(new Date(System.currentTimeMillis()))
 				.isActive(true)
 				.build();
 		return questionnaire;
 	}
+
 	
 	/*
 	 * Save questionnaires to db after parsing csv file
 	 */
-	public void saveQuestionnaireListFromPSVFile(MultipartFile file) throws IOException {
+	public void saveQuestionnaireListFromCSVFile(MultipartFile file) throws IOException {
 		
 		BufferedReader csvReader = null;
 		csvReader = new BufferedReader(new InputStreamReader(file.getInputStream()));
@@ -82,13 +84,16 @@ public class QuestionnaireService {
 		String prevQuestionnaireTopic = null;
 		Questionnaire questionnaireSave = null;
 		while ((csvRow = csvReader.readLine()) != null) {
+			
 			/*
 			 * PSV columns in the order:
 			 * 
 			 * question_content (0) | option_1 (1) | option_2 (2) | correct_option (3) | question_type (4) |
 			 * questionnaire_topic (5) | created_by (6) | questionnaire_description (7)
+			 *
+			 * csv parser: refer to function comments for parsing details
 			 */
-			List<String> columnFields = Arrays.asList(csvRow.split("\\|"));
+			List<String> columnFields = CSVParser.csvParser(csvRow);
 			
 			/*
 			 * Checking if questionnaireTopic already exists in the db
@@ -404,4 +409,41 @@ public class QuestionnaireService {
 		
 		return questionnaireResponseList;
 	}
+	
+	/*
+	 * Delete Questionnaire by Id (lazy -> does not cascade)
+	 */
+	public void deleteQuestionnaireLazyById(String questionnaireId) {
+		
+		if (questionnaireId == null) return;
+		questionnaireRepository.deleteById(Short.valueOf(questionnaireId));
+	}
+	
+	/*
+	 * Delete Question by Id (lazy -> does not cascade)
+	 */
+	public void deleteQuestionLazyById(String questionId) {
+		
+		if (questionId == null) return;
+		questionRepository.deleteById(Short.valueOf(questionId));
+	}
+	
+	/*
+	 * Delete Answer by Id (lazy -> does not cascade)
+	 */
+	public void deleteAnswerLazyById(String answerId) {
+		
+		if (answerId == null) return;
+		answerRepository.deleteById(Short.valueOf(answerId));
+	}
+	
+	/*
+	 * Delete AnswerOption by Id (lazy -> does not cascade)
+	 */
+	public void deleteAnswerOptionLazyById(String answerOptionId) {
+		
+		if (answerOptionId == null) return;
+		answerOptionRepository.deleteById(Short.valueOf(answerOptionId));
+	}
+	
 } 

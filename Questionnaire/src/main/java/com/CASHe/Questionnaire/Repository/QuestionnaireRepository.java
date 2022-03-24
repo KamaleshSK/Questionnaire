@@ -25,4 +25,8 @@ public interface QuestionnaireRepository extends JpaRepository<Questionnaire, Sh
 	
 	Questionnaire findByQuestionnaireTopicAndIsActiveTrue(String questionnaireTopic);
 	
+	/*
+	 * Does not cascade
+	 */
+	void deleteById(Short id);
 }

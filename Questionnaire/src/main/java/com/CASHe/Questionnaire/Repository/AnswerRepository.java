@@ -37,4 +37,9 @@ public interface AnswerRepository extends JpaRepository<Answer, Short> {
 	 * Fetches answer by question_id and is_active
 	 */
 	List<Answer> findAllByQuestionIdAndIsActiveTrue(Short questionId);
+	
+	/*
+	 * Does not cascade
+	 */
+	void deleteById(Short id);
 }

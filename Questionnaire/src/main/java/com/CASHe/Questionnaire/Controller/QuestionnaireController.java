@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,10 +59,30 @@ public class QuestionnaireController {
 		questionnaireService.saveQuestionnaireList(jsonObject);
 	}
 	
-	@PostMapping("/upload-questionnaire-list/psv-file")
-	public void uploadQuestionnaireListViaPsvFile(@RequestParam("file") MultipartFile file) throws IOException {
-		// Ideally this parsing task is delegated to an asynchronouse task queue
+	@PostMapping("/upload-questionnaire-list/csv-file")
+	public void uploadQuestionnaireListViaCsvFile(@RequestParam("file") MultipartFile file) throws IOException {
+		// Ideally this parsing task is delegated to an asynchronous task queue
 		// For now parsing is done in the life cycle of the request itself
-		questionnaireService.saveQuestionnaireListFromPSVFile(file);
+		questionnaireService.saveQuestionnaireListFromCSVFile(file);
+	}
+	
+	@DeleteMapping("/delete-questionnaire/lazy/id")
+	public void deleteQuestionnaireLazyById(@RequestParam("id") String questionnaireId) {
+		questionnaireService.deleteQuestionnaireLazyById(questionnaireId);
+	}
+	
+	@DeleteMapping("/delete-question/lazy/id")
+	public void deleteQuestionLazyById(@RequestParam("id") String questionId) {
+		questionnaireService.deleteQuestionLazyById(questionId);
+	}
+	
+	@DeleteMapping("/delete-answer/lazy/id")
+	public void deleteAnswerLazyById(@RequestParam("id") String answerId) {
+		questionnaireService.deleteAnswerLazyById(answerId);
+	}
+	
+	@DeleteMapping("/delete-answer-option/lazy/id")
+	public void deleteAnswerOptionLazyById(@RequestParam("id") String answerOptionId) {
+		questionnaireService.deleteAnswerOptionLazyById(answerOptionId);
 	}
 }

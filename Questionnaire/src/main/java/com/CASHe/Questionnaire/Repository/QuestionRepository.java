@@ -53,4 +53,8 @@ public interface QuestionRepository extends JpaRepository<Question, Short> {
 	)
 	List<Question> findAllByQuestionnaireIdAndQuestionTypeAndIsActiveTrue(@Param("questionnaireId") Short questionnaireId, @Param("questionType") String questionType);
 	
+	/*
+	 * Does not cascade
+	 */
+	void deleteById(Short id);
 }
