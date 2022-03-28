@@ -1,6 +1,7 @@
 package com.CASHe.Questionnaire.Model;
 
 import java.sql.Date;
+import java.util.Objects;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -60,6 +61,27 @@ public class AnswerOption {
 	)
 	@JsonIgnoreProperties({"correctOption", "hibernateLazyInitializer"})
 	private Answer answerId;
+	
+	@Override
+	public boolean equals(Object o) {
+		
+		if (o == this) {
+			return true;
+		}
+		
+		if (!(o instanceof AnswerOption)) {
+			return false;
+		}
+		
+		AnswerOption option = (AnswerOption) o;
+		
+		return Objects.equals(getOptionId(), option.getOptionId());
+	}
+	
+	@Override
+    public int hashCode() {
+        return Objects.hash(getOptionId());
+    }
 	
 	public Short getOptionId() {
 		return optionId;

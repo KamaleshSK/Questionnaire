@@ -19,6 +19,7 @@ import com.CASHe.Questionnaire.DTO.AnswerOptionDTO;
 import com.CASHe.Questionnaire.DTO.AnswerOptionResponseDTO;
 import com.CASHe.Questionnaire.DTO.AnswerResponseDTO;
 import com.CASHe.Questionnaire.DTO.QuestionDTO;
+import com.CASHe.Questionnaire.DTO.QuestionMinimalResponseDTO;
 import com.CASHe.Questionnaire.DTO.QuestionResponseDTO;
 import com.CASHe.Questionnaire.DTO.QuestionnaireDTO;
 import com.CASHe.Questionnaire.DTO.QuestionnaireListUploadDTO;
@@ -141,7 +142,7 @@ public class QuestionnaireService {
 					.isActive(true)
 					.build();
 			
-			if (columnFields.get(3) == "1") {
+			if (columnFields.get(3).equals("1")) {
 				answerSave.setCorrectOption(option1Save);
 			} else {
 				answerSave.setCorrectOption(option2Save);
@@ -410,6 +411,52 @@ public class QuestionnaireService {
 		return questionnaireResponseList;
 	}
 	
+	private List<QuestionMinimalResponseDTO> constructQuestionMinimalResponseList(List<Questionnaire> questionnaireList) {
+		
+		List<QuestionMinimalResponseDTO> questionResponseList = new ArrayList<>();
+		
+		for (Question question: questionnaireList.get(0).getQuestions()) {
+			
+			AnswerOption correctOption = question.getAnswer().getCorrectOption();
+			Short correctOptionIndex = 0;
+			List<String> optionList = new ArrayList<>();
+			boolean correctOptionFound = false;
+			for (AnswerOption option : question.getAnswer().getAnswerOptions()) {
+				optionList.add(option.getOptionContent());
+				if (correctOptionFound) {
+					continue;
+				}
+				correctOptionIndex++;
+				if (option.getOptionId() == correctOption.getOptionId()) {
+					correctOptionFound = true;
+				}
+			}
+			
+			QuestionMinimalResponseDTO questionResponse = QuestionMinimalResponseDTO.builder()
+					.id(question.getQuestionId())
+					.content(question.getQuestionContent())
+					.correctOption(correctOptionIndex)
+					.optionList(optionList)
+					.build();
+			
+			questionResponseList.add(questionResponse);
+		}
+		
+		return questionResponseList;
+	}
+	
+	/*
+	 *  Fetch active questions (without questionnaire wrap) by questionnaire topic
+	 */
+	public List<QuestionMinimalResponseDTO> findQuestionsEagerByTopic(String jsonObject) {
+		
+		if (jsonObject == null) return null;
+		String topic = TopicDTO.newInstance(jsonObject).getTopic();
+		List<Questionnaire> activeQuestionnaireList = questionnaireRepository.findAllByQuestionnaireTopicAndIsActiveTrue(topic);
+		List<QuestionMinimalResponseDTO> questionList = constructQuestionMinimalResponseList(activeQuestionnaireList);
+		return questionList;
+	}
+	
 	/*
 	 * Delete Questionnaire by Id (lazy -> does not cascade)
 	 */
@@ -444,6 +491,21 @@ public class QuestionnaireService {
 		
 		if (answerOptionId == null) return;
 		answerOptionRepository.deleteById(Short.valueOf(answerOptionId));
+	}
+	
+	/*
+	 * Delete Questionnaire by Id (Eager -> will cascade delete children)
+	 */
+	public void deleteQuestionnaireEagerById(String questionnaireId) {
+		
+		
+	}
+	
+	/*
+	 * Delete Question By Id (Eager -> will cascade delete children)
+	 */
+	public void deleteQuestionEagerById() {
+		
 	}
 	
 } 

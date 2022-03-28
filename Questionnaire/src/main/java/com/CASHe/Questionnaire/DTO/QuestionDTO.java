@@ -2,6 +2,9 @@ package com.CASHe.Questionnaire.DTO;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import lombok.Data;
 
@@ -20,5 +23,4 @@ public class QuestionDTO {
 	
 	@JsonProperty("answer")
 	private AnswerDTO answer;
-	
 }

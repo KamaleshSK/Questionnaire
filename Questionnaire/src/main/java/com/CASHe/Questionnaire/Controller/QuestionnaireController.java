@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,12 +14,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.CASHe.Questionnaire.DTO.QuestionMinimalResponseDTO;
 import com.CASHe.Questionnaire.DTO.QuestionnaireResponseDTO;
 import com.CASHe.Questionnaire.Model.Questionnaire;
 import com.CASHe.Questionnaire.Service.QuestionnaireService;
 
 @RestController
 @RequestMapping("/questionnaire")
+@CrossOrigin(origins = "http://localhost:4200")
 public class QuestionnaireController {
 	
 	@Autowired
@@ -44,14 +47,19 @@ public class QuestionnaireController {
 		return questionnaireService.findAllActiveQuestionnairesEager();
 	}
 	
-	@GetMapping("/all-active-questionnaire/topic/eager")
+	@PostMapping("/all-active-questionnaire/topic/eager")
 	public List<QuestionnaireResponseDTO> getAllActiveQuestionnairesEagerByTopic(@RequestBody String jsonObject) {
 		return questionnaireService.findQuestionnaireEagerByTopic(jsonObject);
 	}
 	
-	@GetMapping("/all-active-questionnaire/topic/type/eager")
+	@PostMapping("/all-active-questionnaire/topic/type/eager")
 	public List<QuestionnaireResponseDTO> getAllActvQuestnnrsEagerByTopicByType(@RequestBody String jsonObject) {
 		return questionnaireService.findQuestionsByTopicAndType(jsonObject);
+	}
+	
+	@PostMapping("/all-active-questions/topic/eager")
+	public List<QuestionMinimalResponseDTO> getAllActvQuestnEagerByTopic(@RequestBody String jsonObject) {
+		return questionnaireService.findQuestionsEagerByTopic(jsonObject);
 	}
 	
 	@PostMapping("/upload-questionnaire-list")
@@ -85,4 +93,6 @@ public class QuestionnaireController {
 	public void deleteAnswerOptionLazyById(@RequestParam("id") String answerOptionId) {
 		questionnaireService.deleteAnswerOptionLazyById(answerOptionId);
 	}
+	
+	
 }
