@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -282,6 +283,7 @@ public class QuestionnaireService {
 		if (answerOptions == null) return null;
 		
 		List<AnswerOptionResponseDTO> optionResponseList = new ArrayList<>();
+		Collections.shuffle(answerOptions);
 		for (AnswerOption option : answerOptions) {
 			
 			AnswerOptionResponseDTO optionResponse = constructAnswerOptionResponse(option);
@@ -418,19 +420,14 @@ public class QuestionnaireService {
 		for (Question question: questionnaireList.get(0).getQuestions()) {
 			
 			AnswerOption correctOption = question.getAnswer().getCorrectOption();
-			Short correctOptionIndex = 0;
 			List<String> optionList = new ArrayList<>();
-			boolean correctOptionFound = false;
+			List<AnswerOption> answerOptionList = question.getAnswer().getAnswerOptions();
+			Collections.shuffle(answerOptionList);
 			for (AnswerOption option : question.getAnswer().getAnswerOptions()) {
 				optionList.add(option.getOptionContent());
-				if (correctOptionFound) {
-					continue;
-				}
-				correctOptionIndex++;
-				if (option.getOptionId() == correctOption.getOptionId()) {
-					correctOptionFound = true;
-				}
 			}
+			
+			Short correctOptionIndex = (short) (answerOptionList.indexOf(correctOption) + 1);
 			
 			QuestionMinimalResponseDTO questionResponse = QuestionMinimalResponseDTO.builder()
 					.id(question.getQuestionId())
