@@ -74,6 +74,11 @@ public class QuestionnaireController {
 		questionnaireService.saveQuestionnaireListFromCSVFile(file);
 	}
 	
+	@PostMapping("/upload-employee-quiz-score")
+	public void uploadQuizScore(@RequestBody String jsonObject) {
+		questionnaireService.saveEmployeeQuizScoreOnSubmit(jsonObject);
+	}
+	
 	@DeleteMapping("/delete-questionnaire/lazy/id")
 	public void deleteQuestionnaireLazyById(@RequestParam("id") String questionnaireId) {
 		questionnaireService.deleteQuestionnaireLazyById(questionnaireId);

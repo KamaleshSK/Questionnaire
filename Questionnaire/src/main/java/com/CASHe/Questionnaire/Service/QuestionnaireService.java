@@ -19,6 +19,7 @@ import com.CASHe.Questionnaire.DTO.AnswerDTO;
 import com.CASHe.Questionnaire.DTO.AnswerOptionDTO;
 import com.CASHe.Questionnaire.DTO.AnswerOptionResponseDTO;
 import com.CASHe.Questionnaire.DTO.AnswerResponseDTO;
+import com.CASHe.Questionnaire.DTO.EmployeeScoreDTO;
 import com.CASHe.Questionnaire.DTO.QuestionDTO;
 import com.CASHe.Questionnaire.DTO.QuestionMinimalResponseDTO;
 import com.CASHe.Questionnaire.DTO.QuestionResponseDTO;
@@ -29,10 +30,12 @@ import com.CASHe.Questionnaire.DTO.TopicAndTypeDTO;
 import com.CASHe.Questionnaire.DTO.TopicDTO;
 import com.CASHe.Questionnaire.Model.Answer;
 import com.CASHe.Questionnaire.Model.AnswerOption;
+import com.CASHe.Questionnaire.Model.EmployeeScore;
 import com.CASHe.Questionnaire.Model.Question;
 import com.CASHe.Questionnaire.Model.Questionnaire;
 import com.CASHe.Questionnaire.Repository.AnswerOptionRepository;
 import com.CASHe.Questionnaire.Repository.AnswerRepository;
+import com.CASHe.Questionnaire.Repository.EmployeeScoreRepository;
 import com.CASHe.Questionnaire.Repository.QuestionRepository;
 import com.CASHe.Questionnaire.Repository.QuestionnaireRepository;
 import com.CASHe.Questionnaire.Utils.CSVParser;
@@ -51,6 +54,29 @@ public class QuestionnaireService {
 	
 	@Autowired
 	private AnswerOptionRepository answerOptionRepository;
+	
+	@Autowired
+	private EmployeeScoreRepository employeeScoreRepository;
+	
+	private EmployeeScore constructEmployeeScore(EmployeeScoreDTO employeeScore) {
+		
+		EmployeeScore employeeScoreSave = EmployeeScore.builder()
+				.employeeId(employeeScore.getEmployeeId())
+				.DepartmentName(employeeScore.getDepartmentName())
+				.score(employeeScore.getScore())
+				.build();
+		return employeeScoreSave;
+	}
+	
+	/*
+	 * Save Employee Quiz Score on Submit
+	 */
+	public void saveEmployeeQuizScoreOnSubmit(String jsonObject) {
+		
+		EmployeeScoreDTO employeeScore = EmployeeScoreDTO.newInstance(jsonObject);
+		EmployeeScore employeeScoreSave = constructEmployeeScore(employeeScore);
+		employeeScoreRepository.save(employeeScoreSave);
+	}
 	
 	/*
 	 * fetches Questionnaire by topic if already present
